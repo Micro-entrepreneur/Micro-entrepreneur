@@ -198,6 +198,9 @@ const ShopSearch = () => {
         )}
       </ul>
 
+      <div className='coupon'>
+        지역주민 전용 <span>5,000원 할인 쿠폰</span> 🎫
+      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Faq from '@/pages/Faq';
 import Register from '@/pages/Register';
 import MyPage from '@/pages/MyPage';
+import StarRating from '@/pages/StarRating';
 
 export const Layout = () => {
   return (
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       { path: '/faq', element: <Faq /> },
       { path: '/signup', element: <Register /> },
       { path: '/mypage', element: <MyPage /> },
+      { path: '/starrating', element: <StarRating /> },
     ],
   },
 ]);

@@ -87,3 +87,6 @@ window.location.href = authUrl;
 - `.env` 파일은 `.gitignore`에 포함되어 있습니다.
 - 프로덕션 환경에서는 환경 변수를 안전하게 관리하세요.
 
+
+
+

@@ -1,0 +1,137 @@
+.signup-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.signup-title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #111;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+input {
+  border-radius: 6px;
+  padding: 10px;
+}
+input::placeholder {
+  padding-left: 10px;
+}
+.duplicate-check-btn {
+  position: absolute;
+  right: 10px;
+  top: 35px;
+  background-color: #1e6fd9;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.duplicate-check-btn:hover {
+  background-color: #00c4ad;
+}
+.name-input {
+  width: 100%;
+  padding: 16px 0;
+  border: none;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.name-input::placeholder {
+  color: #8d8d8d;
+}
+
+.name-input:focus {
+  border-color: #111;
+}
+
+.text-green {
+  display: inline-block;
+  height: 1.75rem; /* 28px */
+  font-weight: 500;
+  font-family: 'Noto';
+}
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 65%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.5;
+}
+
+.toggle-password:hover img {
+  opacity: 0.8;
+}
+.password-rules {
+  margin-top: 16px;
+  margin-bottom: 40px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.rule-item img {
+  width: 20px;
+  height: 20px;
+}
+.cancel-btn,
+.signup-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  margin-right: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  color: #111;
+}
+
+.cancel-btn:hover {
+  background-color: #ebebeb;
+}
+
+.signup-btn {
+  background-color: #1e6fd9;
+  border: none;
+  color: white;
+}
+
+.signup-btn:hover {
+  background-color: #326fbf;
+}

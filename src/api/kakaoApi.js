@@ -58,19 +58,44 @@ export const searchKakao = async (keyword, options = {}) => {
   const { display = 10, page = 1, sort = 'accuracy' } = options;
 
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/search?query=${encodeURIComponent(keyword)}&display=${display}&page=${page}&sort=${sort}`
-    );
+    const url = `${API_BASE_URL}/api/search?query=${encodeURIComponent(keyword)}&display=${display}&page=${page}&sort=${sort}`;
+    console.log('카카오 로컬 검색 요청:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || '검색 실패');
+      console.error('카카오 로컬 검색 API 오류:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
+      
+      // 상세한 에러 메시지 생성
+      let errorMessage = errorData.message || '검색 실패';
+      if (errorData.details?.hint) {
+        errorMessage += ` (${errorData.details.hint})`;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
+    console.log('카카오 로컬 검색 성공:', {
+      resultCount: data.documents?.length || 0,
+      totalCount: data.meta?.total_count || 0,
+    });
     return data;
   } catch (error) {
     console.error('카카오 로컬 검색 오류:', error);
+    if (error.message.includes('Failed to fetch')) {
+      throw new Error(`서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요. (${API_BASE_URL})`);
+    }
     throw error;
   }
 };

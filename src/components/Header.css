@@ -1,0 +1,136 @@
+/* 네비게이션 기본 */
+header {
+  background: #1e6fd9;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+.navbar {
+  background-color: #1e6fd9;
+  padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.nav-container {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  position: relative;
+  background-color: #333;
+  border-radius: 8px;
+  background-color: #1e6fd9;
+}
+
+.nav-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 1rem;
+}
+
+.nav-header-wrapper header {
+  color: #fff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.nav-logo {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* 햄버거 버튼 */
+.nav-toggler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-left: auto;
+  transition: transform 0.3s;
+}
+
+.nav-toggler svg {
+  transition: transform 0.3s;
+}
+
+.nav-toggler:hover {
+  opacity: 0.8;
+}
+
+/* 메뉴 */
+.nav-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  background-color: #333;
+  width: 100%;
+  text-align: center;
+  z-index: 999;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.nav-menu.active {
+  max-height: 500px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item:last-child {
+  border-bottom: none;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s;
+  display: block;
+  padding: 0.5rem 1rem;
+}
+
+.nav-link:hover {
+  color: #ffd700;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .nav-menu {
+    max-width: 100%;
+  }
+
+  /* SVG 아이콘 스타일 */
+  .nav-toggler svg {
+    display: block;
+  }
+}

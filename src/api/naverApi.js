@@ -2,24 +2,50 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-// 네이버 검색 API
+// 네이버 지역 검색 API (음식점 검색)
 export const searchNaver = async (keyword, options = {}) => {
-  const { display = 10, start = 1, sort = 'sim' } = options;
+  const { display = 10, start = 1, page = 1, sort = 'random' } = options;
 
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/search?query=${encodeURIComponent(keyword)}&display=${display}&start=${start}&sort=${sort}`
-    );
+    const startParam = start || page;
+    const url = `${API_BASE_URL}/api/search?query=${encodeURIComponent(keyword)}&display=${display}&start=${startParam}&sort=${sort}`;
+    console.log('네이버 지역 검색 요청:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || '검색 실패');
+      console.error('네이버 지역 검색 API 오류:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
+
+      // 상세한 에러 메시지 생성
+      let errorMessage = errorData.message || '검색 실패';
+      if (errorData.details?.hint) {
+        errorMessage += ` (${errorData.details.hint})`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
+    console.log('네이버 지역 검색 성공:', {
+      resultCount: data.documents?.length || 0,
+      totalCount: data.meta?.total_count || 0,
+    });
     return data;
   } catch (error) {
-    console.error('네이버 검색 오류:', error);
+    console.error('네이버 지역 검색 오류:', error);
+    if (error.message.includes('Failed to fetch')) {
+      throw new Error(`서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요. (${API_BASE_URL})`);
+    }
     throw error;
   }
 };
@@ -29,7 +55,7 @@ export const getNaverAuthUrl = async (redirectUri, state) => {
   try {
     const url = `${API_BASE_URL}/api/naver/auth-url?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state || 'random_state'}`;
     console.log('네이버 인증 URL 요청:', url);
-    
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -57,9 +83,7 @@ export const getNaverAuthUrl = async (redirectUri, state) => {
 // 네이버 로그인 콜백 처리
 export const handleNaverCallback = async (code, state) => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/naver/callback?code=${code}&state=${state}`
-    );
+    const response = await fetch(`${API_BASE_URL}/api/naver/callback?code=${code}&state=${state}`);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -73,5 +97,3 @@ export const handleNaverCallback = async (code, state) => {
     throw error;
   }
 };
-
-

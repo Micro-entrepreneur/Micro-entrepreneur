@@ -1,11 +1,11 @@
 import { createBrowserRouter, Outlet } from 'react-router-dom';
-import ShopSearch from './pages/ShopSearch';
 import Login from './pages/Login';
 import Header from './components/Header';
 import Faq from '@/pages/Faq';
 import Register from '@/pages/Register';
 import MyPage from '@/pages/MyPage';
 import StarRating from '@/pages/StarRating';
+import Food from '@/pages/Food';
 
 export const Layout = () => {
   return (
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <ShopSearch /> },
+      { path: '/', element: <Food /> },
       { path: '/login', element: <Login /> },
       { path: '/faq', element: <Faq /> },
       { path: '/signup', element: <Register /> },

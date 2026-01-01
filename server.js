@@ -53,6 +53,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// 프론트엔드 설정 정보 제공 (카카오 맵 등에서 사용)
+app.get('/api/config', (req, res) => {
+  res.json({
+    kakaoClientId: KAKAO_CLIENT_ID || '',
+  });
+});
+
 // 행정경계조회 API (baroApi) - 지역 정보 조회
 app.get('/api/public/baroApi', async (req, res) => {
   const query = req.query.query; // 검색어 (시도명, 시군구명, 행정동명 등)
@@ -727,73 +734,62 @@ app.get('/api/public/search', async (req, res) => {
 app.get('/api/search', async (req, res) => {
   const query = req.query.query;
   const display = req.query.display || 10;
-  const start = req.query.start || req.query.page || 1;
-  const sort = req.query.sort || 'random'; // random: 정확도순, comment: 리뷰순
+  const page = req.query.page || req.query.start || 1;
+  const sort = req.query.sort || 'accuracy'; // accuracy: 정확도순, distance: 거리순
 
   if (!query) {
     return res.status(400).json({ error: '검색어가 필요합니다.' });
   }
 
-  if (!NAVER_CLIENT_ID || !NAVER_CLIENT_SECRET) {
+  if (!KAKAO_CLIENT_ID) {
     return res.status(500).json({ 
-      error: '네이버 API 키가 설정되지 않았습니다.',
-      message: '.env 파일에 NAVER_CLIENT_ID와 NAVER_CLIENT_SECRET을 설정해주세요.' 
+      error: '카카오 API 키가 설정되지 않았습니다.',
+      message: '.env 파일에 KAKAO_CLIENT_ID를 설정해주세요.' 
     });
   }
 
   try {
-    console.log('네이버 지역 검색 요청:', {
+    console.log('카카오 로컬 검색 요청:', {
       query,
       display,
-      start,
+      page,
       sort,
-      clientId: NAVER_CLIENT_ID.substring(0, 10) + '...',
+      clientId: KAKAO_CLIENT_ID.substring(0, 10) + '...',
     });
 
+    // 카카오 로컬 검색 API 호출
     const response = await axios.get(
-      'https://openapi.naver.com/v1/search/local.json',
+      'https://dapi.kakao.com/v2/local/search/keyword.json',
       {
         params: {
           query: query,
-          display: parseInt(display),
-          start: parseInt(start),
+          size: parseInt(display),
+          page: parseInt(page),
           sort: sort,
         },
         headers: {
-          'X-Naver-Client-Id': NAVER_CLIENT_ID,
-          'X-Naver-Client-Secret': NAVER_CLIENT_SECRET,
+          'Authorization': `KakaoAK ${KAKAO_CLIENT_ID}`,
         },
       }
     );
 
-    console.log('네이버 지역 검색 성공:', {
-      resultCount: response.data.items?.length || 0,
-      totalCount: response.data.total || 0,
+    console.log('카카오 로컬 검색 성공:', {
+      resultCount: response.data.documents?.length || 0,
+      totalCount: response.data.meta?.total_count || 0,
     });
 
-    // 네이버 API 응답 형식을 카카오와 유사하게 변환
-    const transformedData = {
-      documents: (response.data.items || []).map(item => ({
-        id: item.link || item.telephone,
-        place_name: item.title?.replace(/<[^>]*>/g, ''), // HTML 태그 제거
-        category_name: item.category,
-        address_name: item.address,
-        road_address_name: item.roadAddress,
-        phone: item.telephone,
-        place_url: item.link,
-        mapx: item.mapx,
-        mapy: item.mapy,
-      })),
+    // 카카오 API 응답은 이미 documents와 meta 형식이므로 그대로 반환
+    res.json({
+      documents: response.data.documents || [],
       meta: {
-        total_count: response.data.total || 0,
-        pageable_count: response.data.display || 0,
-        is_end: (parseInt(start) * parseInt(display)) >= (response.data.total || 0),
+        total_count: response.data.meta?.total_count || 0,
+        pageable_count: response.data.meta?.pageable_count || 0,
+        is_end: response.data.meta?.is_end || false,
+        page: response.data.meta?.page || page,
       },
-    };
-
-    res.json(transformedData);
+    });
   } catch (error) {
-    console.error('네이버 지역 검색 API 오류:', {
+    console.error('카카오 로컬 검색 API 오류:', {
       message: error.message,
       status: error.response?.status,
       statusText: error.response?.statusText,
@@ -804,16 +800,16 @@ app.get('/api/search', async (req, res) => {
     let errorDetails = {};
 
     if (error.response?.status === 401) {
-      errorMessage = '네이버 API 키가 유효하지 않습니다. CLIENT_ID와 CLIENT_SECRET을 확인해주세요.';
+      errorMessage = '카카오 API 키가 유효하지 않습니다. KAKAO_CLIENT_ID를 확인해주세요.';
       errorDetails = {
-        hint: '네이버 개발자 센터(https://developers.naver.com/)에서 API 키를 확인하고 .env 파일에 설정해주세요.',
+        hint: '카카오 개발자 센터(https://developers.kakao.com/)에서 REST API 키를 확인하고 .env 파일에 KAKAO_CLIENT_ID로 설정해주세요.',
         error: error.response?.data,
       };
     } else if (error.response?.status === 400) {
-      errorMessage = error.response?.data?.errorMessage || '잘못된 요청입니다.';
+      errorMessage = error.response?.data?.msg || '잘못된 요청입니다.';
       errorDetails = error.response?.data;
     } else if (error.response?.data) {
-      errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || error.message;
+      errorMessage = error.response?.data?.msg || error.response?.data?.message || error.message;
       errorDetails = error.response?.data;
     } else {
       errorMessage = error.message;

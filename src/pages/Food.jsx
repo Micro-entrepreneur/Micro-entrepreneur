@@ -1,59 +1,17 @@
-import { useState } from 'react';
-import './Food.css'; // ✅ CSS import
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-// 공공 API 검색 함수
-const searchPublicApi = async (keyword, options = {}) => {
-  const { display = 15, page = 1 } = options;
-
-  try {
-    const url = `${API_BASE_URL}/api/public/search?query=${encodeURIComponent(keyword)}&display=${display}&page=${page}`;
-    console.log('공공 API 검색 요청:', url);
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('공공 API 검색 오류:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorData,
-      });
-
-      let errorMessage = errorData.message || '검색 실패';
-      if (errorData.details?.hint) {
-        errorMessage += ` (${errorData.details.hint})`;
-      }
-
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    console.log('공공 API 검색 성공:', {
-      resultCount: data.documents?.length || 0,
-      totalCount: data.meta?.total_count || 0,
-    });
-    return data;
-  } catch (error) {
-    console.error('공공 API 검색 오류:', error);
-    if (error.message.includes('Failed to fetch')) {
-      throw new Error(`서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요. (${API_BASE_URL})`);
-    }
-    throw error;
-  }
-};
+import { useState, useEffect, useRef } from 'react';
+import { searchKakao } from '../api/kakaoApi';
+import './Food.css';
 
 function Food() {
   const [shops, setShops] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [kakaoMapsLoaded, setKakaoMapsLoaded] = useState(false);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersRef = useRef([]);
+  const infowindowRef = useRef(null);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -66,9 +24,10 @@ function Food() {
 
     try {
       console.log('검색 시작:', searchTerm);
-      const results = await searchPublicApi(`${searchTerm} 맛집`, {
+      const results = await searchKakao(`${searchTerm} 맛집`, {
         display: 15,
-        page: 1
+        page: 1,
+        sort: 'accuracy'
       });
       
       console.log('검색 결과:', results);
@@ -97,6 +56,132 @@ function Food() {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
+    }
+  };
+
+  // 카카오 맵 초기화
+  useEffect(() => {
+    const loadKakaoMaps = async () => {
+      // 카카오 맵이 이미 로드되었는지 확인
+      if (window.kakao && window.kakao.maps) {
+        setKakaoMapsLoaded(true);
+        return;
+      }
+
+      // KAKAO_CLIENT_ID 가져오기
+      try {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_BASE_URL}/api/config`);
+        const data = await response.json();
+        const clientId = data.kakaoClientId;
+
+        if (!clientId) {
+          console.error('카카오 맵 API 키를 가져올 수 없습니다.');
+          return;
+        }
+
+        // 카카오 맵 스크립트 동적 로드
+        const script = document.createElement('script');
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${clientId}&libraries=services&autoload=false`;
+        script.onload = () => {
+          window.kakao.maps.load(() => {
+            setKakaoMapsLoaded(true);
+          });
+        };
+        document.head.appendChild(script);
+      } catch (err) {
+        console.error('카카오 맵 로드 오류:', err);
+      }
+    };
+
+    loadKakaoMaps();
+  }, []);
+
+  // 지도 초기화 및 마커 표시
+  useEffect(() => {
+    if (!kakaoMapsLoaded || !window.kakao || !window.kakao.maps) return;
+
+    const initializeMap = () => {
+      if (!mapRef.current) return;
+
+      // 기존 지도 제거
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current = null;
+      }
+
+      // 기존 마커 제거
+      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current = [];
+
+      // 인포윈도우 초기화
+      if (!infowindowRef.current) {
+        infowindowRef.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
+      }
+
+      // 지도 생성
+      const mapOption = {
+        center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
+        level: 3
+      };
+
+      mapInstanceRef.current = new window.kakao.maps.Map(mapRef.current, mapOption);
+
+      // 검색 결과가 있으면 마커 표시
+      if (shops.length > 0) {
+        displayMarkers(shops);
+      }
+    };
+
+    // 약간의 지연을 두고 지도 초기화 (DOM이 완전히 렌더링된 후)
+    const timer = setTimeout(initializeMap, 100);
+    return () => clearTimeout(timer);
+  }, [kakaoMapsLoaded, shops]);
+
+  // 마커 표시 함수
+  const displayMarkers = (places) => {
+    if (!mapInstanceRef.current || !window.kakao || !window.kakao.maps) return;
+
+    // 기존 마커 제거
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    const bounds = new window.kakao.maps.LatLngBounds();
+
+    places.forEach((place) => {
+      // 좌표 추출 (카카오 로컬 검색 API 응답 형식에 맞춤)
+      const lat = parseFloat(place.y || place.latitude);
+      const lng = parseFloat(place.x || place.longitude);
+
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const position = new window.kakao.maps.LatLng(lat, lng);
+
+      // 마커 생성
+      const marker = new window.kakao.maps.Marker({
+        map: mapInstanceRef.current,
+        position: position
+      });
+
+      // 마커 클릭 이벤트
+      window.kakao.maps.event.addListener(marker, 'click', function() {
+        const content = `
+          <div style="padding:5px;font-size:12px;min-width:150px;">
+            <div style="font-weight:bold;margin-bottom:5px;">${place.place_name || place.name || '음식점'}</div>
+            ${place.road_address_name ? `<div style="font-size:11px;color:#666;">📍 ${place.road_address_name}</div>` : ''}
+            ${place.phone ? `<div style="font-size:11px;color:#666;">📞 ${place.phone}</div>` : ''}
+          </div>
+        `;
+        infowindowRef.current.setContent(content);
+        infowindowRef.current.open(mapInstanceRef.current, marker);
+      });
+
+      markersRef.current.push(marker);
+      bounds.extend(position);
+    });
+
+    // 검색된 장소 위치를 기준으로 지도 범위 재설정
+    if (places.length > 0) {
+      mapInstanceRef.current.setBounds(bounds);
     }
   };
 
@@ -131,6 +216,12 @@ function Food() {
       )}
 
       <div className="content-area">
+        {shops.length > 0 && (
+          <div className="map-container">
+            <div id="map" ref={mapRef} style={{ width: '100%', height: '400px', borderRadius: '8px', marginBottom: '20px' }}></div>
+          </div>
+        )}
+        
         {shops.length > 0 ? (
           <ul className="result-list">
             {shops.map((shop, index) => (

@@ -159,7 +159,23 @@ const MyPage = () => {
               )}
             </div>
           </div>
-
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              width: '100%',
+              padding: '14px',
+              backgroundColor: '#999',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '500',
+              marginTop: '20px',
+            }}
+          >
+            뒤로 가기
+          </button>
           <button
             onClick={handleLogout}
             style={{

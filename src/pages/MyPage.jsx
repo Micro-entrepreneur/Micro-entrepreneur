@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import defaultAvatar from '/img/login/default-avatar.jpg';
 import { supabase } from '@/lib/supabase';
 
 const MyPage = () => {
@@ -12,12 +13,14 @@ const MyPage = () => {
     const loadUser = async () => {
       try {
         // Supabase 세션 확인
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (session?.user) {
           setUser({
             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '사용자',
             email: session.user.email,
-            profile_image: '',
+            profile_image: defaultAvatar,
             provider: 'email',
           });
           setLoading(false);
@@ -27,7 +30,7 @@ const MyPage = () => {
         // localStorage에서 사용자 정보 확인 (네이버/카카오 로그인)
         const lastProvider = localStorage.getItem('last_login_provider') || 'naver';
         const savedUser = localStorage.getItem(`${lastProvider}_user`);
-        
+
         if (savedUser) {
           try {
             const userData = JSON.parse(savedUser);
@@ -159,7 +162,7 @@ const MyPage = () => {
               )}
             </div>
           </div>
-          
+
           <button
             onClick={handleLogout}
             style={{

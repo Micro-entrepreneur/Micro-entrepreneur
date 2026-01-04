@@ -1,6 +1,7 @@
+import Header from '@/components/Header';
 import { Outlet } from 'react-router';
 
-const GlobalLayout = () => {
+const Layout = () => {
   return (
     <>
       <Header />
@@ -10,4 +11,4 @@ const GlobalLayout = () => {
   );
 };
 
-export default GlobalLayout;
+export default Layout;

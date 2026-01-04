@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import defaultAvatar from '/img/login/default-avatar.jpg';
 import { supabase } from '@/lib/supabase';
 import './Header.css';
 
@@ -20,7 +21,7 @@ function Header() {
         setUser({
           name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '사용자',
           email: session.user.email,
-          profile_image: session.user.user_metadata?.avatar_url || '',
+          profile_image: session.user.user_metadata?.avatar_url || defaultAvatar,
           provider: 'email',
         });
         setIsLoggedIn(true);

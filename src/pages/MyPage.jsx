@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import defaultAvatar from '/img/login/default-avatar.jpg';
 import { supabase } from '@/lib/supabase';
 
 const MyPage = () => {
@@ -12,12 +13,14 @@ const MyPage = () => {
     const loadUser = async () => {
       try {
         // Supabase 세션 확인
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (session?.user) {
           setUser({
             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '사용자',
             email: session.user.email,
-            profile_image: '',
+            profile_image: defaultAvatar,
             provider: 'email',
           });
           setLoading(false);
@@ -27,7 +30,7 @@ const MyPage = () => {
         // localStorage에서 사용자 정보 확인 (네이버/카카오 로그인)
         const lastProvider = localStorage.getItem('last_login_provider') || 'naver';
         const savedUser = localStorage.getItem(`${lastProvider}_user`);
-        
+
         if (savedUser) {
           try {
             const userData = JSON.parse(savedUser);
@@ -105,10 +108,7 @@ const MyPage = () => {
             }}
           >
             <img
-              src={
-                user.profile_image ||
-                'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2U1ZTdlYiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7snbTrr7jsp4A8L3RleHQ+PC9zdmc+'
-              }
+              src={user.profile_image || defaultAvatar}
               alt={user.name}
               onError={(e) => {
                 e.target.src =
@@ -159,7 +159,23 @@ const MyPage = () => {
               )}
             </div>
           </div>
-          
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              width: '100%',
+              padding: '14px',
+              backgroundColor: '#999',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '500',
+              marginTop: '20px',
+            }}
+          >
+            뒤로 가기
+          </button>
           <button
             onClick={handleLogout}
             style={{

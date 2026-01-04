@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import defaultAvatar from '/img/login/default-avatar.jpg';
 import { supabase } from '@/lib/supabase';
 import './Header.css';
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [isActive, setIsActive] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isSettingPage = location.pathname === '/setting';
 
   // 로그인 상태 체크
   const checkLoginStatus = async () => {
@@ -162,34 +164,24 @@ function Header() {
             </button>
           </div>
         )}
-        <button className={`nav-toggler ${isActive ? 'active' : ''}`} onClick={toggleMenu}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu-icon lucide-menu">
-            <path d="M4 5h16" />
-            <path d="M4 12h16" />
-            <path d="M4 19h16" />
-          </svg>
+        <button 
+          className={`nav-toggler ${isActive ? 'active' : ''}`} 
+          onClick={() => isSettingPage ? navigate('/') : navigate('/setting')}
+        >
+          {isSettingPage ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu-icon lucide-menu">
+              <path d="M4 5h16" />
+              <path d="M4 12h16" />
+              <path d="M4 19h16" />
+            </svg>
+          )}
         </button>
       </div>
-
-      <ul className={`nav-menu ${isActive ? 'active' : ''}`}>
-        <li className="nav-item">
-          <Link to="/mypage" className="nav-link" onClick={closeMenu}>
-            <span style={{ marginRight: '8px' }}>👤</span>내 정보 수정
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/contact" className="nav-link" onClick={closeMenu}>
-            <span style={{ marginRight: '8px' }}>💬</span>
-            1:1 문의
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/faq" className="nav-link" onClick={closeMenu}>
-            <span style={{ marginRight: '8px' }}>📋</span>
-            약관 확인
-          </Link>
-        </li>
-      </ul>
     </nav>
   );
 }

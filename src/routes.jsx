@@ -7,6 +7,7 @@ import StarRating from '@/pages/StarRating';
 import Food from '@/pages/Food';
 import Layout from '@/components/layout/global-layout';
 import OrderPage from '@/pages/OrderPage';
+import Setting from '@/pages/Setting';
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       { path: '/mypage', element: <MyPage /> },
       { path: '/starrating', element: <StarRating /> },
       { path: '/order', element: <OrderPage /> },
+      { path: '/setting', element: <Setting /> },
     ],
   },
 ]);

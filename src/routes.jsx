@@ -6,6 +6,7 @@ import MyPage from '@/pages/MyPage';
 import StarRating from '@/pages/StarRating';
 import Food from '@/pages/Food';
 import Layout from '@/components/layout/global-layout';
+import OrderPage from '@/pages/OrderPage';
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: '/signup', element: <Register /> },
       { path: '/mypage', element: <MyPage /> },
       { path: '/starrating', element: <StarRating /> },
+      { path: '/order', element: <OrderPage /> },
     ],
   },
 ]);

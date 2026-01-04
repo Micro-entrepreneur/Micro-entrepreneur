@@ -33,45 +33,45 @@ const OrderPage = () => {
     setIsDropdownOpen(false);
   };
   return (
-    <div className="order-page">
+    <div className="max-w-[600px] mx-auto bg-[#f5f5f5] min-h-[100dvh]">
       {/* 헤더 */}
-      <header className="order-header">
-        <button className="back-button" onClick={handleBack}>
+      <header className="mt-[10px] h-25 relative flex items-center justify-center p-4 bg-white border-b border-gray-200">
+        <button className="absolute left-4 bg-transparent border-none p-2 cursor-pointer" onClick={handleBack}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M15 18L9 12L15 6" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </header>
-      <div className="order-content">
+      <div className="p-4">
         {/* 배송지 섹션 */}
-        <section className="delivery-address">
-          <div className="section-header">
-            <div className="title-group">
-              <span className="location-icon">📍</span>
-              <h2 className="delivery-title">배송지</h2>
+        <section className="bg-white rounded-xl p-5 mb-4">
+          <div className="flex justify-between align-middle mb-4">
+            <div className="flex align-middle gap-2">
+              <span className="text-2xl">📍</span>
+              <h2 className="text-lg font-bold text-[#ff6b35] m-0 ">배송지</h2>
             </div>
-            <button className="change-button" onClick={handleAddressChange}>
+            <button className="px-4 py-1.5 bg-white border border-gray-300 rounded-md text-sm cursor-pointer" onClick={handleAddressChange}>
               변경
             </button>
           </div>
 
-          <div className="address-info">
-            <p className="receiver-name">
-              강선이 | <span className="phone-number">010-6700-5980</span>
+          <div className="mb-4">
+            <p className="text-base font-semibold mb-2 text-gray-700">
+              강선이 | <span className="font-normal">010-6700-5980</span>
             </p>
-            <p className="address">서울특별시 양천구 신정중앙로6길 15 (한솔맨션) 한솔맨션 302호</p>
+            <p className="text-sm text-gray-500 leading-normal">서울특별시 양천구 신정중앙로6길 15 (한솔맨션) 한솔맨션 302호</p>
           </div>
 
-          <div className="saved-address-option">
-            <label htmlFor="" className="checkbox-label">
-              <input type="checkbox" checked={useSavedAddress} onChange={(e) => setUseSavedAddress(e.target.checked)} />
+          <div className="flex align-middle gap-2 mb-4">
+            <label htmlFor="number" className="flex align-middle gap-2 cursor-pointer text-sm">
+              <input className="w-4 h-5 cursor-pointer" type="checkbox" checked={useSavedAddress} onChange={(e) => setUseSavedAddress(e.target.checked)} />
               <span>안심번호 사용하기</span>
             </label>
-            <span className="info-icon">ℹ️</span>
+            <span className="text-base opacity-50">ℹ️</span>
           </div>
           {/* 배송 요청사항 드롭다운 */}
-          <div className="delivery-request-dropdown">
-            <button className="dropdown-button" onClick={toggleDropdown}>
+          <div className="relative">
+            <button className="w-full flex justify-between items-center p-4 bg-white border border-gray-300 rounded-lg text-sm cursor-pointer text-left" onClick={toggleDropdown}>
               <span>{deliveryRequest}</span>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={isDropdownOpen ? 'rotate' : ''}>
                 <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -102,6 +102,13 @@ const OrderPage = () => {
               </button>
             </div>
             <p className="delivery-time-info">오늘(12/28) 오후 8~12시 도착</p>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-[12px] p-5 mt-4">
+          <h2 className="section-title">할인 혜택</h2>
+          <div className="delivery-time-card">
+            <p>사용 가능한 쿠폰이 없습니다.</p>
           </div>
         </section>
       </div>
